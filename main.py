@@ -35,4 +35,6 @@ mode_path = "unpack_result\\홀로"
 ins = Installer()
 ins.install_mode(original_path, mode_path)
 
+
+
 #

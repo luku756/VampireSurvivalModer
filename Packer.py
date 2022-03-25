@@ -3,6 +3,7 @@ Resources 인스턴스를 전달받아 unpack/repack
 
 
 '''
+import json
 
 import Resources
 import os
@@ -13,6 +14,7 @@ import shutil
 
 class Packer:
     default_unpack_dst_path = "unpack_result"
+    trimmed_json_name = "trimmed_list.json"
 
     def __init__(self):
         self.unpack_dst_path = ""
@@ -53,10 +55,10 @@ class Packer:
         for res_name in non_sprite_resources:
             shutil.copy(non_sprite_resources[res_name], os.path.join(self.single_resource_dir_path, res_name))
 
-
     # 하나의 스프라이트 이미지를 조각내기
     def unpack_sprite(self, root_path, resource_name, resource_object):
         sprite_path = os.path.join(root_path, resource_object.filename)
+        trimmed_list = {}  # trimmed 된 이미지 정보를 저장. key : 파일명, value : (w, h, src_w, src_h)
 
         # unpack 된 리소스를 저장할 폴더 생성
         unpack_img_dir_path = os.path.join(self.sprite_resource_dir_path, resource_name)
@@ -81,14 +83,20 @@ class Packer:
 
             # todo : 이거 필요한지 확인.
             # 원본 이미지가 잘려나가 있는 경우 복구. (필요한가?)
-            # if frame.w != frame.src_w or frame.h != frame.src_h:
-            #     crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
-
+            if frame.w != frame.src_w or frame.h != frame.src_h:
+                json_obj = {"sourceSize": {"w": frame.src_w, "h": frame.src_h}, "frame": {"w": frame.w, "h": frame.h}}
+                trimmed_list[frame.filename] = json_obj
+                # crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
 
             try:
                 crop_img.save(img_path)  # 잘라낸 이미지를 저장. 이전 파일이 있다면 덮어쓰기됨
             except KeyError as e:
                 print(e)
+
+        # trimmed_list 저장
+        if trimmed_list is not {}:
+            with open(os.path.join(unpack_img_dir_path, self.trimmed_json_name), "w") as f:
+                f.write(json.dumps(trimmed_list))
 
     # noinspection PyMethodMayBeStatic
     # trim 된 이미지를 원본의 모습으로 복구

@@ -94,9 +94,8 @@ class Packer:
                 print(e)
 
         # trimmed_list 저장
-        if trimmed_list is not {}:
-            with open(os.path.join(unpack_img_dir_path, self.trimmed_json_name), "w") as f:
-                f.write(json.dumps(trimmed_list))
+        with open(os.path.join(unpack_img_dir_path, self.trimmed_json_name), "w") as f:
+            f.write(json.dumps(trimmed_list))
 
     # noinspection PyMethodMayBeStatic
     # trim 된 이미지를 원본의 모습으로 복구

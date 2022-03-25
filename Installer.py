@@ -8,6 +8,7 @@
 '''
 import os
 import shutil
+import json
 
 
 class Installer:
@@ -32,7 +33,7 @@ class Installer:
         # 설치
         build_path = self.build_path
         if os.path.isdir(build_path):  # 기존이 있으면 삭제
-            shutil.rmtree(build_path, ignore_errors=True)
+            shutil.rmtree(build_path)
         # os.mkdir(build_path)
 
         # 원본을 복사
@@ -40,9 +41,11 @@ class Installer:
 
         # 모드 파일을 복사
         for path in self.mode_resource_list:
-            src_path = self.mode_path + path
-            shutil.copy(src_path, build_path + path)
-
+            if os.path.basename(path) == 'trimmed_list.json':  # 이 파일은 덮어쓰기가 아닌 병합이 필요.
+                self.combine_trimmed_list(build_path, path)
+            else:  # 복사해서 덮어쓰기
+                src_path = self.mode_path + path
+                shutil.copy(src_path, build_path + path)
 
     # 원본과 모드의 비교
     def compare_mode(self):
@@ -70,3 +73,25 @@ class Installer:
                 path = os.path.join(root, file)
                 path = path.replace(self.mode_path, "")  # root path 제외
                 self.mode_resource_list.append(path)
+
+    # 원본과 모드의 trimmed_list 를 합쳐서 하나의 파일로 저장.
+    def combine_trimmed_list(self, build_path, path):
+        path = path[1:]   # 앞쪽에 \ 가 붙어있음
+
+        original_trimmed_path = os.path.join(self.original_path, path)
+        with open(original_trimmed_path, "r") as f:
+            json_str = f.read()
+            trimmed_json = json.loads(json_str)
+
+        mode_trimmed_path = os.path.join(self.mode_path, path)
+        with open(mode_trimmed_path, "r") as f:
+            json_str = f.read()
+            mode_json = json.loads(json_str)
+
+        # mode 에 있는 건 덮어쓰기
+        for item in mode_json:
+            trimmed_json[item] = mode_json[item]
+
+        # trimmed_list 저장
+        with open(os.path.join(build_path, path), "w") as f:
+            f.write(json.dumps(trimmed_json))

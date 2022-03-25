@@ -14,6 +14,7 @@ rs.read()
 #rs.parse_resource("UI")
 
 pk = Packer()
+# pk.unpack(rs, "기본")
 pk.unpack(rs)
 
 

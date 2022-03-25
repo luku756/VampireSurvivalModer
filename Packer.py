@@ -10,13 +10,19 @@ from PIL import Image
 
 
 class Packer:
-    unpack_dst_path = "unpack_result"
+    default_unpack_dst_path = "unpack_result"
 
     def __init__(self):
         print("packer")
+        self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, "img")
 
     # 전달받은 Resources 오브젝트를 언팩
-    def unpack(self, resources_instance):
+    def unpack(self, resources_instance, dst_path=""):
+        if dst_path != "":
+            self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, dst_path)
+
+        if not os.path.isdir(self.default_unpack_dst_path):
+            os.mkdir(self.default_unpack_dst_path)
 
         if not os.path.isdir(self.unpack_dst_path):
             os.mkdir(self.unpack_dst_path)

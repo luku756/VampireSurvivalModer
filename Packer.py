@@ -8,39 +8,58 @@ import Resources
 import os
 from math import ceil, floor
 from PIL import Image
+import shutil
 
 
 class Packer:
     default_unpack_dst_path = "unpack_result"
 
     def __init__(self):
-        print("packer")
-        self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, "img")
+        self.unpack_dst_path = ""
+        self.sprite_resource_dir_path = ""  # 스프라이트 형태의 리소스를 언팩해서 저장하는 위치
+        self.single_resource_dir_path = ""  # 단일 파일 리소스를 언팩해서 저장하는 위치
 
     # 전달받은 Resources 오브젝트를 언팩
     def unpack(self, resources_instance, dst_path=""):
         if dst_path != "":  # unpack 폴더 경로
             self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, dst_path)
+        else:
+            self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, "img")
+
+        self.sprite_resource_dir_path = os.path.join(self.unpack_dst_path, "sprite")
+        self.single_resource_dir_path = os.path.join(self.unpack_dst_path, "single")
+
+        print(f"Start Unpack resources to {self.unpack_dst_path}")
 
         # 폴더 생성 확인
         if not os.path.isdir(self.default_unpack_dst_path):
             os.mkdir(self.default_unpack_dst_path)
         if not os.path.isdir(self.unpack_dst_path):
             os.mkdir(self.unpack_dst_path)
+        if not os.path.isdir(self.sprite_resource_dir_path):
+            os.mkdir(self.sprite_resource_dir_path)
+        if not os.path.isdir(self.single_resource_dir_path):
+            os.mkdir(self.single_resource_dir_path)
 
-        resources = resources_instance.get_resources()
+        root_path = resources_instance.get_resource_dir_path()  # 리소스 홈폴더
+        resources = resources_instance.get_sprite_resources()
 
         for res_name in resources:
             # print(res_name)
-            self.unpack_sprite(res_name, resources[res_name])
+            self.unpack_sprite(root_path, res_name, resources[res_name])
+
+        # sprite 가 아닌 리소스를 복사
+        non_sprite_resources = resources_instance.get_single_resources()
+        for res_name in non_sprite_resources:
+            shutil.copy(non_sprite_resources[res_name], os.path.join(self.single_resource_dir_path, res_name))
+
 
     # 하나의 스프라이트 이미지를 조각내기
-    def unpack_sprite(self, resource_name, resource_object):
-        root_path = Resources.Resources.img_resource_dir_path  # 리소스 홈폴더
+    def unpack_sprite(self, root_path, resource_name, resource_object):
         sprite_path = os.path.join(root_path, resource_object.filename)
 
         # unpack 된 리소스를 저장할 폴더 생성
-        unpack_img_dir_path = os.path.join(self.unpack_dst_path, resource_name)
+        unpack_img_dir_path = os.path.join(self.sprite_resource_dir_path, resource_name)
         if not os.path.isdir(unpack_img_dir_path):
             os.mkdir(unpack_img_dir_path)
 
@@ -60,17 +79,11 @@ class Packer:
             crop_img = img.crop(area)  # crop 메서드를 이용해서 자른다.
             img_path = os.path.join(unpack_img_dir_path, frame.filename)
 
-            # 원본 이미지가 잘려나가 있는 경우.
-            if frame.w != frame.src_w or frame.h != frame.src_h:
-                # print('so')
+            # todo : 이거 필요한지 확인.
+            # 원본 이미지가 잘려나가 있는 경우 복구. (필요한가?)
+            # if frame.w != frame.src_w or frame.h != frame.src_h:
+            #     crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
 
-                # print(f'trimmed 이미지 복구! {frame.filename}')
-                crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
-
-            # if os.path.isfile(img_path):
-            #     print(f" * {img_path} 가 이미 존재합니다. 덮어쓰기됩니다.")
-            # else:
-            #     print(f" * {img_path} 에 unpacked 이미지 저장!")
 
             try:
                 crop_img.save(img_path)  # 잘라낸 이미지를 저장. 이전 파일이 있다면 덮어쓰기됨

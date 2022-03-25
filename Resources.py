@@ -1,10 +1,10 @@
 '''
 기본 리소스를 읽어들인다.
 
-Vampire Survivors 폴더 안의 리소스 중 resources\app\.webpack\renderer\assets\img 내의 리소스를 사용.
+Vampire Survivors 폴더 안의 리소스 중 sprite_resources\app\.webpack\renderer\assets\img 내의 리소스를 사용.
 json이 존재하는 파일만을 대상으로 한다.
 
-C:\Program Files (x86)\Steam\steamapps\common\Vampire Survivors\resources\app\.webpack\renderer\assets\img
+C:\Program Files (x86)\Steam\steamapps\common\Vampire Survivors\sprite_resources\app\.webpack\renderer\assets\img
 '''
 
 import os
@@ -15,8 +15,9 @@ class Resources:
     img_resource_dir_path = "resources\\app\\.webpack\\renderer\\assets\\img"
 
     def __init__(self):
-        self.resource_name_list = []  # 리소스 종류(이름)
-        self.resources = {}  # key : 리소스 이름, value : ResourceObject
+        self.sprite_name_list = []  # 스프라이트 리소스(json) 종류(이름)
+        self.sprite_resources = {}  # key : 리소스 이름, value : ResourceObject
+        self.single_resources = {}  # key : 리소스 이름, value : 리소스 경로
 
     # 리소스 읽기
     def read(self, resource_path=""):
@@ -24,18 +25,21 @@ class Resources:
         if resource_path != "":
             print(f" * Read Resource From {resource_path}")
             self.img_resource_dir_path = resource_path
-        self.get_json_resource()
+        self.read_and_parse_resource()
 
-    # 목록 중에서 json 이 존재하는 파일만 추출
-    def get_json_resource(self):
+    # 목록 중에서 json 이 존재하는 파일과 아닌 파일을 확인, json 파일 parse
+    def read_and_parse_resource(self):
         file_list = os.listdir(self.img_resource_dir_path)
         for path in file_list:
             ext = os.path.splitext(path)  # 파일 확장자
             if ext[1] == '.json':
-                self.resource_name_list.append(ext[0])
-        # print(self.resource_name_list)
+                self.sprite_name_list.append(ext[0])
+            else:  # 스프라이트가 아닌, 코드나 단일 png 등의 리소스
+                self.single_resources[path] = os.path.join(self.img_resource_dir_path, path)
 
-        for res in self.resource_name_list:
+        # print(self.sprite_name_list)
+
+        for res in self.sprite_name_list:
             self.parse_resource(res)
 
     # json 파일 읽어들이기
@@ -46,11 +50,19 @@ class Resources:
             json_object = json.loads(json_str)
 
             obj = ResourceObject(resource_name, json_object)
-            self.resources[resource_name] = obj
+            self.sprite_resources[resource_name] = obj
 
-    # resources 리턴
-    def get_resources(self):
-        return self.resources
+    # sprite_resources 리턴
+    def get_sprite_resources(self):
+        return self.sprite_resources
+
+    # single_resources 리턴
+    def get_single_resources(self):
+        return self.single_resources
+
+    def get_resource_dir_path(self):
+        return self.img_resource_dir_path
+
 
 
 # json 형태로 된 리소스의 정보와 목록
@@ -75,6 +87,7 @@ class ResourceObject:
 
         # 메타 정보
         self.meta = json_object["meta"]
+        print(self.meta)
 
         # 각 프레임(개별 이미지) 읽어들이기
         self.parse_images(textures["frames"])
@@ -112,7 +125,7 @@ class ResourceImage:
             if self.trimmed:  # trimmed 된 경우, 원본의 크기와 frame 상의 크기가 달라질 수 있음.
                 self.src_w = json_obj["sourceSize"]["w"]
                 self.src_h = json_obj["sourceSize"]["h"]
-                print(f"trim, now: ({self.w}, {self.h}) / origin: ({self.src_w}, {self.src_h}) ({self.filename})")
+                # print(f"trim, now: ({self.w}, {self.h}) / origin: ({self.src_w}, {self.src_h}) ({self.filename})")
             else:
                 print("this is bug... " + self.filename)
         else:

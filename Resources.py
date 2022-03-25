@@ -19,8 +19,11 @@ class Resources:
         self.resources = {}  # key : 리소스 이름, value : ResourceObject
 
     # 리소스 읽기
-    def read(self):
+    def read(self, resource_path=""):
         print('Resource Read Start')
+        if resource_path != "":
+            print(f" * Read Resource From {resource_path}")
+            self.img_resource_dir_path = resource_path
         self.get_json_resource()
 
     # 목록 중에서 json 이 존재하는 파일만 추출
@@ -30,7 +33,7 @@ class Resources:
             ext = os.path.splitext(path)  # 파일 확장자
             if ext[1] == '.json':
                 self.resource_name_list.append(ext[0])
-        print(self.resource_name_list)
+        # print(self.resource_name_list)
 
         for res in self.resource_name_list:
             self.parse_resource(res)
@@ -91,10 +94,7 @@ class ResourceImage:
 
     def __init__(self, json_obj):
         self.filename = json_obj["filename"]
-
-        print(self.filename)
-        if 'psd' in self.filename.lower():
-            print(self.filename)
+        # print(self.filename)
 
         # psd 타입으로 저장 불가. png 로 변환
         ext = os.path.splitext(self.filename)  # 파일 확장자
@@ -108,10 +108,11 @@ class ResourceImage:
         self.w = json_obj["frame"]["w"]
         self.h = json_obj["frame"]["h"]
 
-        if self.w != json_obj["spriteSourceSize"]["w"] or self.h != json_obj["spriteSourceSize"]["h"]:
-            if not self.trimmed:  # trimmed 된 경우, 원본의 크기와 frame 상의 크기가 달라질 수 있음.
-                self.src_w = json_obj["spriteSourceSize"]["w"]
-                self.src_h = json_obj["spriteSourceSize"]["h"]
+        if self.w != json_obj["sourceSize"]["w"] or self.h != json_obj["sourceSize"]["h"]:
+            if self.trimmed:  # trimmed 된 경우, 원본의 크기와 frame 상의 크기가 달라질 수 있음.
+                self.src_w = json_obj["sourceSize"]["w"]
+                self.src_h = json_obj["sourceSize"]["h"]
+                print(f"trim, now: ({self.w}, {self.h}) / origin: ({self.src_w}, {self.src_h}) ({self.filename})")
             else:
                 print("this is bug... " + self.filename)
         else:

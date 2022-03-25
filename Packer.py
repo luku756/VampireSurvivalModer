@@ -6,6 +6,7 @@ Resources 인스턴스를 전달받아 unpack/repack
 
 import Resources
 import os
+from math import ceil, floor
 from PIL import Image
 
 
@@ -18,19 +19,19 @@ class Packer:
 
     # 전달받은 Resources 오브젝트를 언팩
     def unpack(self, resources_instance, dst_path=""):
-        if dst_path != "":
+        if dst_path != "":  # unpack 폴더 경로
             self.unpack_dst_path = os.path.join(Packer.default_unpack_dst_path, dst_path)
 
+        # 폴더 생성 확인
         if not os.path.isdir(self.default_unpack_dst_path):
             os.mkdir(self.default_unpack_dst_path)
-
         if not os.path.isdir(self.unpack_dst_path):
             os.mkdir(self.unpack_dst_path)
 
         resources = resources_instance.get_resources()
 
         for res_name in resources:
-            print(res_name)
+            # print(res_name)
             self.unpack_sprite(res_name, resources[res_name])
 
     # 하나의 스프라이트 이미지를 조각내기
@@ -58,30 +59,40 @@ class Packer:
             area = frame.get_area()  # 잘라낼 사각형 범위
             crop_img = img.crop(area)  # crop 메서드를 이용해서 자른다.
             img_path = os.path.join(unpack_img_dir_path, frame.filename)
-            if os.path.isfile(img_path):
-                print(f" * {img_path} 가 이미 존재합니다. 덮어쓰기됩니다.")
-            else:
-                print(f" * {img_path} 에 저장!.")
+
+            # 원본 이미지가 잘려나가 있는 경우.
+            if frame.w != frame.src_w or frame.h != frame.src_h:
+                # print('so')
+
+                # print(f'trimmed 이미지 복구! {frame.filename}')
+                crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
+
+            # if os.path.isfile(img_path):
+            #     print(f" * {img_path} 가 이미 존재합니다. 덮어쓰기됩니다.")
+            # else:
+            #     print(f" * {img_path} 에 unpacked 이미지 저장!")
 
             try:
                 crop_img.save(img_path)  # 잘라낸 이미지를 저장. 이전 파일이 있다면 덮어쓰기됨
             except KeyError as e:
                 print(e)
 
+    # noinspection PyMethodMayBeStatic
+    # trim 된 이미지를 원본의 모습으로 복구
+    def restore_trimmed_image(self, trimmed_image, original_w, original_h):
+        width, height = trimmed_image.size
+        trimmed_width = original_w - width
+        margin_width = (int(floor(trimmed_width / 2)), int(ceil(trimmed_width / 2)))
+        trimmed_height = original_h - height
+        margin_height = (int(floor(trimmed_height / 2)), int(ceil(trimmed_height / 2)))
 
+        # print(f"trimmed now: ({width}, {height}) / add: ({trimmed_width}, {trimmed_height}) , start with ({margin_width[0]}, {margin_height[0]})")
 
-def test():
-    img = Image.open('data/characters.png')
-    print(img.size)  # (900, 1000)의 크기로 출력
-    print(img.format)  # gif 포멧으로 출력
+        # 팔레트 모드인 경우, RGBA 로 변환.
+        if trimmed_image.mode == 'P':
+            trimmed_image = trimmed_image.convert("RGBA")
+        result = Image.new(trimmed_image.mode, (original_w, original_h), (255, 255, 255, 0))
+        result.paste(trimmed_image, (margin_width[0], margin_height[0]))
 
-    x = 5
-    y = 1
-    h = 31
-    w = 29
+        return result
 
-    # 이미지 잘라내기
-    xy = (x, y, x + w, y + h)  # (100, 200), (600, 700)을 지나는 직사각형으로 자른다.
-    crop_img = img.crop(xy)  # crop 메서드를 이용해서 자른다.
-    crop_img.show()  # 이미지를 띄운다.
-    crop_img.save("data/res.png")

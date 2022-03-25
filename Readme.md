@@ -2,6 +2,8 @@
 
 뱀파이어 서바이벌 모드 설치/유지보수를 위한 툴
 
+made by Redwing
+
 ## 주요 기능
 
 * 리소스 언팩 (resource unpack)

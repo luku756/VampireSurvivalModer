@@ -10,7 +10,8 @@ from Installer import Installer
 from Controller import Controller
 
 import GUI
-
+import logging
+logging.basicConfig(level=logging.INFO)
 
 #
 # rs = Resources()

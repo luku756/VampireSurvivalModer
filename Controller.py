@@ -43,7 +43,7 @@ class Controller:
         pk = Packer()
         abspath = pk.unpack(rs)  # 폴더 경로 미지정
 
-        logging.info(f" <-> Unpack Resources Finish")
+        logging.info(f" <-> Unpack Resources Finish\n")
         return abspath
 
     # 리소스를 다시 패킹한다.
@@ -60,7 +60,7 @@ class Controller:
         pk = Packer()
         abspath = pk.repack(unpack_resource_path, dst_path=self.repack_dir_name)
 
-        logging.info(f" <-> Repack Resources Finish")
+        logging.info(f" <-> Repack Resources Finish\n")
         return abspath
 
     # 모드를 설치한다.
@@ -114,7 +114,7 @@ class Controller:
         # 결과 파일 삭제
         shutil.rmtree(self.repack_dir_name)
 
-        logging.info(f" <-> Install Mode Finish")
+        logging.info(f" <-> Install Mode Finish\n")
         return original_resource_dir_path
 
     # img 폴더를 찾아서 리턴한다.

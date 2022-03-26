@@ -38,7 +38,7 @@ class Packer:
         self.sprite_resource_dir_path = os.path.join(self.unpack_dir_path, "sprite")
         self.single_resource_dir_path = os.path.join(self.unpack_dir_path, "single")
 
-        logging.info(f"Start Unpack Resources")
+        logging.info(f"\nStart Unpack Resources")
         logging.info(f" * output path : {self.unpack_dir_path}")
 
 
@@ -132,7 +132,7 @@ class Packer:
 
     # unpack 된 리소스를 다시 packing
     def repack(self, unpacked_path, dst_path=""):
-        logging.info(f"Start Packing Resources")
+        logging.info(f"\nStart Packing Resources")
         logging.info(f" * input path : {unpacked_path}")
         self.pack_src_dir_path = unpacked_path
 

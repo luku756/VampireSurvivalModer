@@ -22,7 +22,7 @@ class Resources:
 
     # 리소스 읽기
     def read(self, resource_path=""):
-        logging.info('Start Read Resource')
+        logging.info('\nStart Read Resource')
         if resource_path != "":
             logging.info(f" * input path : {resource_path}")
             self.img_resource_dir_path = resource_path

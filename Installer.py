@@ -52,7 +52,7 @@ class Installer:
 
     # 원본과 모드의 비교
     def compare_mode(self):
-        logging.info("Start Compare Original and Mode")
+        logging.info("\nStart Compare Original and Mode")
         self.load_resource_list()
 
         # 모드에 있는 모든 파일이 원본에 존재하는지 체크, 원본에 없는 파일은 제거.

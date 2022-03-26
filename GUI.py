@@ -185,10 +185,11 @@ def create_gui():
 
     default_text = '1234'
     width, height = 150, 25
-    log_box = tkscrolled.ScrolledText(window, width=width, height=height, wrap='word')
+    log_box = LoggingHandlerFrame(window)
+    # log_box = LoggingHandlerFrame(window, width=width, height=height, wrap='word')
 
     # set default text if desired
-    log_box.insert(1.0, default_text)
+    # log_box.insert(1.0, default_text)
     log_box.pack(side="top")
 
     # 메인루프 시작
@@ -201,7 +202,7 @@ class LoggingHandlerFrame(ttk.Frame):
     class Handler(logging.Handler):
         def __init__(self, widget):
             logging.Handler.__init__(self)
-            self.setFormatter(logging.Formatter("%(asctime)s: %(message)s"))
+            self.setFormatter(logging.Formatter("%(message)s"))
             self.widget = widget
             self.widget.config(state='disabled')
 
@@ -221,9 +222,11 @@ class LoggingHandlerFrame(ttk.Frame):
         self.scrollbar = Scrollbar(self)
         self.scrollbar.grid(row=0, column=1, sticky=(N,S,E))
 
-        self.text = Text(self, yscrollcommand=self.scrollbar.set)
+        self.text = Text(self, yscrollcommand=self.scrollbar.set, width=150, height=25)
         self.text.grid(row=0, column=0, sticky=(N,S,E,W))
 
         self.scrollbar.config(command=self.text.yview)
 
         self.logging_handler = LoggingHandlerFrame.Handler(self.text)
+        logger = logging.getLogger()
+        logger.addHandler(self.logging_handler)

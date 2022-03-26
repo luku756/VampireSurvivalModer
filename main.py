@@ -9,23 +9,21 @@ from Installer import Installer
 
 
 #
-# rs = Resources()
-# rs.read()
+rs = Resources()
+rs.read()
 # #rs.parse_resource("UI")
 #
-# pk = Packer()
-# pk.unpack(rs)
+pk = Packer()
+pk.unpack(rs)
 # #
 #
-# holo_path = "mode\\Holo Survivors (v0.3.2 - EA, 1.0)\\Vampire Survivors\\resources\\app\\.webpack\\renderer\\assets\\img"
-#
-# rs = Resources()
-# rs.read(holo_path)
-# #rs.parse_resource("UI")
-#
-# pk = Packer()
-# # pk.unpack(rs, "기본")
-# pk.unpack(rs, "홀로")
+holo_path = "mode\\Holo Survivors (v0.3.2 - EA, 1.0)\\Vampire Survivors\\resources\\app\\.webpack\\renderer\\assets\\img"
+
+rs = Resources()
+rs.read(holo_path)
+
+pk = Packer()
+pk.unpack(rs, "홀로")
 
 
 
@@ -35,6 +33,10 @@ mode_path = "unpack_result\\홀로"
 ins = Installer()
 ins.install_mode(original_path, mode_path)
 
+unpack_path = "build"
+
+pk = Packer()
+pk.repack(unpack_path)
 
 
 #

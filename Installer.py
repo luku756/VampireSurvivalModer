@@ -43,7 +43,8 @@ class Installer:
         for path in self.mode_resource_list:
             if os.path.basename(path) == 'trimmed_list.json':  # 이 파일은 덮어쓰기가 아닌 병합이 필요.
                 self.combine_trimmed_list(build_path, path)
-            else:  # 복사해서 덮어쓰기
+            elif os.path.basename(path) != 'json_skeleton.json':  # 스켈레톤 파일은 덮어쓰지 않음. 원본의 것 사용
+                # 복사해서 덮어쓰기
                 src_path = self.mode_path + path
                 shutil.copy(src_path, build_path + path)
 

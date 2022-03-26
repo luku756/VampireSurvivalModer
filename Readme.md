@@ -1,4 +1,6 @@
 # Vampire Survival Moder
+## made by Redwing
+
 
 뱀파이어 서바이벌 모드 설치/유지보수를 위한 툴
 
@@ -8,7 +10,9 @@ Tool For Vampire Survival Mode Support
 
 This support install another version mode. (It can apply v0.3 to v0.2 mode resources)
 
-made by Redwing
+## Download
+
+[Download Exe File](https://github.com/luku756/VampireSurvivalModer/releases/tag/v1.0.0)
 
 ## Main Function (주요 기능)
 

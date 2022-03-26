@@ -147,11 +147,11 @@ class Packer:
         self.pack_dir_path = os.path.join(pack_path, self.root_dir_name)
         os.mkdir(self.pack_dir_path)
 
-        # 단일 파일부터 복사
-        self.copy_single_resources()
-
         # 스프라이트 리소스 packing
         self.pack_sprite_resources()
+
+        # 단일 파일 복사
+        self.copy_single_resources()
 
     # 단일 파일 복사
     def copy_single_resources(self):
@@ -163,7 +163,7 @@ class Packer:
             src_path = os.path.join(single_dir_src_path, file)
             dst_path = os.path.join(single_dir_dst_path, file)
             shutil.copy(src_path, dst_path)
-            # print(f"[{src_path}] to [{dst_path}]")
+            # print(f" * move single resource [{src_path}] to [{dst_path}]")
 
     # 스프라이트 리소스 packing
     def pack_sprite_resources(self):
@@ -173,7 +173,7 @@ class Packer:
         sprite_list = os.listdir(sprite_dir_src_path)
 
         for sprite in sprite_list:
-            print(f"sprite : {sprite}")
+            print(f" * pack sprite : {sprite}")
             sprite_dir_path = os.path.join(sprite_dir_src_path, sprite)
 
             # json 파일. 뼈대를 json_skeleton.json 파일에서 가져온다.
@@ -183,7 +183,7 @@ class Packer:
                 json_str = f.read()
                 sprite_json = json.loads(json_str)
 
-            print(sprite_json)
+            # print(sprite_json)
 
             # trimmed 된 리소스 목록
             trimmed_list_path = os.path.join(sprite_dir_path, self.trimmed_json_name)
@@ -192,12 +192,12 @@ class Packer:
                 json_str = f.read()
                 trimmed_list = json.loads(json_str)
 
-            print(trimmed_list)
+            # print(trimmed_list)
 
             # 스프라이트 시트 계산
             resource_positions, sheet_size = self.calculate_sprite_sheet_size(sprite_dir_path)
-            print(resource_positions)
-            print(f"시트 사이즈 : {sheet_size[0]}, {sheet_size[1]}")
+            # print(resource_positions)
+            # print(f"시트 사이즈 : {sheet_size[0]}, {sheet_size[1]}")
 
             # 스프라이트 시트 생성
             self.create_sheet_and_json(resource_positions, sheet_size, sprite_dir_path, sprite_json)
@@ -232,12 +232,12 @@ class Packer:
             # print(f"step for {resource}, now_x:{now_x}, now_top:{now_top}, this_line_max_y:{this_line_max_y}, max_line_width:{max_line_width}")
             if now_x + resource['w'] < max_width:  # 이번 라인에 추가할 수 있음
                 resource_positions[resource['name']] = (now_x, now_top, resource['w'], resource['h'])
-                now_x = now_x + resource['w']  # 커서 이동
+                now_x = now_x + resource['w'] + 1  # 커서 이동
                 this_line_max_y = max(resource['h'], this_line_max_y)  # 라인 높이 계산
                 max_line_width = max(now_x, max_line_width)  # 최대 가로 크기 계산
             else:  # 줄바꿈
                 max_line_width = max(now_x, max_line_width)  # 최대 가로 크기 계산
-                now_top = now_top + this_line_max_y  # y 커서 추가 (다음 라인)
+                now_top = now_top + this_line_max_y + 1  # y 커서 추가 (다음 라인)
                 resource_positions[resource['name']] = (0, now_top, resource['w'], resource['h'])
                 # 초기화
                 now_x = resource['w']
@@ -252,13 +252,16 @@ class Packer:
     def create_sheet_and_json(self, resource_positions, sheet_size, sprite_dir_path, sprite_json):
         resource_name = os.path.basename(sprite_dir_path)
 
+        # trimmed_list 가져오기
+        trimmed_list_path = os.path.join(sprite_dir_path, self.trimmed_json_name)
+        with open(trimmed_list_path, "r") as f:
+            json_str = f.read()
+            trimmed_list = json.loads(json_str)
+
         # 시트에 크기 정보 기록
         sprite_json["textures"][0]["size"]["w"] = sheet_size[0]
         sprite_json["textures"][0]["size"]["h"] = sheet_size[1]
         frame_list = sprite_json["textures"][0]["frames"]
-
-        print("frame")
-        print(sprite_json)
 
         # 최종적인 이미지
         sprite_sheet = Image.new("RGBA", sheet_size, (255, 255, 255, 0))
@@ -273,9 +276,51 @@ class Packer:
                 sprite_sheet.paste(img, (resource_positions[resource][0], resource_positions[resource][1]))
 
             # json 정보 작성
+            x, y, w, h = resource_positions[resource]  # frame 정보
+            trimmed = False
+            # trimmed 되지 않은 디폴트 옵션
+            sprite_source_size_x, sprite_source_size_y = 0, 0
+            source_size_w, source_size_h = w, h
 
-        print("final frame")
-        print(sprite_json)
+            if resource in trimmed_list:  # trim 된 이미지
+                # trimmed_list 에 적혀있는 파일 크기(frame)와, 현재 파일 크기가 같으면 동일 파일로 본다.
+                # 파일 크기가 변화한 경우 모드로 수정한 리소스로 본다.
+                # print(f"{resource} 는 trimmed resource 입니다.")
+                trimmed_data = trimmed_list[resource]
+                if trimmed_data["frame"]["w"] == w and trimmed_data["frame"]["h"] == h:  # 파일 변경 없음. trimmed 상태
+                    trimmed = True
+                    source_size_w, source_size_h = trimmed_data["sourceSize"]["w"], trimmed_data["sourceSize"]["h"]
+                    # w, h 는 frame 과 같음.
+                    sprite_source_size_x, sprite_source_size_y = trimmed_data["spriteSourceSize"]["x"], trimmed_data["spriteSourceSize"]["y"]
+                # else:
+                #     print("-----변경됐네요??????")
+
+            frame = {
+                "filename": resource,
+                "rotated": False,
+                "trimmed": trimmed,
+                "sourceSize": {
+                    "w": source_size_w,
+                    "h": source_size_h
+                },
+                "spriteSourceSize": {
+                    "x": sprite_source_size_x,
+                    "y": sprite_source_size_y,
+                    "w": w,
+                    "h": h
+                },
+                "frame": {
+                    "x": x,
+                    "y": y,
+                    "w": w,
+                    "h": h
+                }
+            }
+            frame_list.append(frame)
+
+        # resource json 저장
+        with open(os.path.join(self.pack_dir_path, resource_name+".json"), "w") as f:
+            f.write(json.dumps(sprite_json))
 
         # 시트 저장
         sprite_sheet_path = os.path.join(self.pack_dir_path, resource_name+".png")

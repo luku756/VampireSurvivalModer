@@ -35,7 +35,12 @@ class Resources:
             ext = os.path.splitext(path)  # 파일 확장자
             if ext[1] == '.json':
                 self.sprite_name_list.append(ext[0])
-            else:  # 스프라이트가 아닌, 코드나 단일 png 등의 리소스
+
+        for path in file_list:
+            ext = os.path.splitext(path)  # 파일 확장자
+            if ext[1] != '.json' and ext[0] not in self.sprite_name_list:
+                # 스프라이트가 아닌, 코드나 단일 png 등의 리소스
+                # print(f"{path} is single resources")
                 self.single_resources[path] = os.path.join(self.img_resource_dir_path, path)
 
         # print(self.sprite_name_list)

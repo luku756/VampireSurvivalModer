@@ -55,7 +55,8 @@ class Installer:
 
         # 모드에 있는 모든 파일이 원본에 존재하는지 체크, 원본에 없는 파일은 제거.
         for path in self.mode_resource_list:
-            if path not in self.original_resource_list:
+            # if path not in self.original_resource_list and "illustrations.png" not in path:  # illustrations.png 는 예외 todo: 제거
+            if path not in self.original_resource_list:  # illustrations.png 는 예외 todo: 제거
                 self.mode_resource_list.remove(path)
                 print(f" * {path} not in original!!!")
 

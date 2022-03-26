@@ -23,7 +23,7 @@ class Installer:
         self.original_path = ""
         self.mode_path = ""
 
-    def install_mode(self, original_path, mode_path):
+    def install_mode(self, original_path, mode_path, dst_path=""):
         self.original_path = original_path
         self.mode_path = mode_path
 
@@ -31,7 +31,10 @@ class Installer:
         self.compare_mode()
 
         # 설치
-        build_path = self.build_path
+        if dst_path == "":
+            build_path = self.build_path
+        else:
+            build_path = dst_path
         if os.path.isdir(build_path):  # 기존이 있으면 삭제
             shutil.rmtree(build_path)
         # os.mkdir(build_path)
@@ -60,7 +63,7 @@ class Installer:
                 self.mode_resource_list.remove(path)
                 print(f" * {path} not in original!!!")
 
-        print(f"Mode has {len(self.mode_resource_list)} resource images.")
+        print(f" * Mode has {len(self.mode_resource_list)} resource images.")
 
     # 원본과 모드에 있는 리소스 목록 가져오기
     def load_resource_list(self):

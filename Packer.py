@@ -37,7 +37,8 @@ class Packer:
         self.sprite_resource_dir_path = os.path.join(self.unpack_dir_path, "sprite")
         self.single_resource_dir_path = os.path.join(self.unpack_dir_path, "single")
 
-        print(f"Start Unpack resources to {self.unpack_dir_path}")
+        print(f"Start Unpack Resources")
+        print(f" * output path : {self.unpack_dir_path}")
 
         # 폴더 생성 확인
         if not os.path.isdir(self.default_unpack_dst_path):
@@ -76,9 +77,7 @@ class Packer:
 
         # 이미지 크기 오류 체크
         if img.size[0] != resource_object.w or img.size[1] != resource_object.h:
-            print(f"{sprite_path} is error!")
-            print((resource_object.w, resource_object.h))
-            print(img.size)
+            print(f" * {sprite_path} is error!!!  json size: ({resource_object.w} / {resource_object.h}), real size : {img.size}")
 
         img_list = resource_object.get_image_list()
 
@@ -131,7 +130,8 @@ class Packer:
 
     # unpack 된 리소스를 다시 packing
     def repack(self, unpacked_path, dst_path=""):
-        print(f"Start Packing Resources from {unpacked_path}")
+        print(f"Start Packing Resources")
+        print(f" * input path : {unpacked_path}")
         self.pack_src_dir_path = unpacked_path
 
         # 폴더 경로
@@ -146,6 +146,8 @@ class Packer:
         os.mkdir(pack_path)
         self.pack_dir_path = os.path.join(pack_path, self.root_dir_name)
         os.mkdir(self.pack_dir_path)
+
+        print(f" * output path : {self.pack_dir_path}")
 
         # 스프라이트 리소스 packing
         self.pack_sprite_resources()
@@ -173,7 +175,7 @@ class Packer:
         sprite_list = os.listdir(sprite_dir_src_path)
 
         for sprite in sprite_list:
-            print(f" * pack sprite : {sprite}")
+            print(f" > pack sprite - {sprite}")
             sprite_dir_path = os.path.join(sprite_dir_src_path, sprite)
 
             # json 파일. 뼈대를 json_skeleton.json 파일에서 가져온다.

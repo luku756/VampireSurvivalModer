@@ -22,9 +22,9 @@ class Resources:
 
     # 리소스 읽기
     def read(self, resource_path=""):
-        print('Resource Read Start')
+        print('Start Read Resource')
         if resource_path != "":
-            print(f" * Read Resource From {resource_path}")
+            print(f" * input path : {resource_path}")
             self.img_resource_dir_path = resource_path
         self.read_and_parse_resource()
 

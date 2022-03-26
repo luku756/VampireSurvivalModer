@@ -48,14 +48,20 @@ def create_gui():
     # window.geometry("800x710-2500+700")
     # window.resizable(False, False)
 
-    window.iconbitmap(resource_path('resource\\logo.ico'))
-    # window.iconphoto(False, tk.PhotoImage(file=resource_path('resource\\아멜리.jpg')))
+    # 리소스 이슈
+    work_path = os.getcwd()
+    try:
+        os.chdir(sys._MEIPASS)
+        print(sys._MEIPASS)
+    except:
+        os.chdir(os.getcwd())
 
+    window.iconbitmap(resource_path('resource\\logo.ico'))
     # 뱀파이어 서바이벌 타이틀
     img = tkinter.PhotoImage(file="resource\\title.png")
     title_label = tkinter.Label(window, image=img)
     title_label.pack()
-
+    os.chdir(work_path)
     # 탐색기를 열어 폴더 찾기
     def select_path(entry):
         dir_path = filedialog.askdirectory(parent=window, initialdir="/", title='Please select a directory')

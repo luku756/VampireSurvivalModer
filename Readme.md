@@ -1,7 +1,6 @@
 # Vampire Survival Moder
 ## made by Redwing
 
-
 뱀파이어 서바이벌 모드 설치/유지보수를 위한 툴
 
 게임의 버전과 모드의 버전에 영향을 받지 않습니다. (v0.3 게임에 v0.2의 모드 파일 적용 가능)

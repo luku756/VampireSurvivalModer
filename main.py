@@ -16,11 +16,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # 빌드 시 리소스 이슈 해결
-try:
-    os.chdir(sys._MEIPASS)
-    print(sys._MEIPASS)
-except:
-    os.chdir(os.getcwd())
+# try:
+#     os.chdir(sys._MEIPASS)
+#     print(sys._MEIPASS)
+# except:
+#     os.chdir(os.getcwd())
 
 #
 # rs = Resources()

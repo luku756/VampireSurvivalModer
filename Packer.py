@@ -39,7 +39,7 @@ class Packer:
         self.single_resource_dir_path = os.path.join(self.unpack_dir_path, "single")
 
         logging.info(f"\nStart Unpack Resources")
-        logging.info(f" * output path : {self.unpack_dir_path}")
+        logging.info(f" * output path : {os.path.abspath(self.unpack_dir_path)}")
 
 
         # 폴더 생성

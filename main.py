@@ -9,6 +9,8 @@ from Installer import Installer
 
 from Controller import Controller
 
+import GUI
+
 
 #
 # rs = Resources()
@@ -40,12 +42,15 @@ from Controller import Controller
 # pk = Packer()
 # pk.repack(unpack_path)
 
-
-controller = Controller()
-# controller.unpack_resource("resources")
+GUI.create_gui()
+# controller = Controller()
+# # controller.unpack_resource("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Vampire Survivors")
+# controller.install_mode("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Vampire Survivors", "C:\\Users\\jsl\\Downloads\\Holo Survivors (v0.3.2 - EA, 1.0)")
+# controller = Controller()
+# # controller.unpack_resource("resources")
+# #
+# # controller.repack_resource("unpack_result\img")
 #
-# controller.repack_resource("unpack_result\img")
-
-controller.install_mode("resources2", "mode")
+# controller.install_mode("resources2", "mode")
 
 #

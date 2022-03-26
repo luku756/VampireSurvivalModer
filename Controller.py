@@ -21,13 +21,13 @@ class Controller:
 
     # 리소스를 언팩한다.
     def unpack_resource(self, resource_path):
+        print("=" * 40)
         # img 찾기
         dir_path = self.find_dir_path(resource_path)
         if dir_path == "":  # 없음
-            print("img 폴더를 찾을 수 없습니다.")
+            print(" <X> img 폴더를 찾을 수 없습니다.")
             return None
         else:
-            print("=" * 40)
             print(f" <*> Start Unpack Resources")
 
         # 리소스 읽기
@@ -36,19 +36,27 @@ class Controller:
 
         # 리소스 언팩
         pk = Packer()
-        pk.unpack(rs)  # 폴더 경로 미지정
+        abspath = pk.unpack(rs)  # 폴더 경로 미지정
 
         print(f" <-> Unpack Resources Finish")
+        return abspath
 
     # 리소스를 다시 패킹한다.
     def repack_resource(self, unpack_resource_path):
         print("=" * 40)
         print(f" <*> Start Repack Resources")
 
+        # 폴더 확인
+        if not os.path.isdir(os.path.join(unpack_resource_path, "single")) or \
+                os.path.isdir(os.path.join(unpack_resource_path, "sprite")):
+            print(f" <X> {unpack_resource_path} 는 unpack 폴더가 아닙니다.")
+            return None
+
         pk = Packer()
-        pk.repack(unpack_resource_path, dst_path=self.repack_dir_name)
+        abspath = pk.repack(unpack_resource_path, dst_path=self.repack_dir_name)
 
         print(f" <-> Repack Resources Finish")
+        return abspath
 
     # 모드를 설치한다.
     # 원본 언팩, 모드 언팩, 컴바인, 리팩
@@ -60,7 +68,7 @@ class Controller:
         mode_resource_dir_path = self.find_dir_path(mode_path)
 
         if original_resource_dir_path == "" or mode_resource_dir_path == "":
-            print(f" x {self.resource_dir_name} 폴더를 찾을 수 없습니다! ")
+            print(f" <X> {self.resource_dir_name} 폴더를 찾을 수 없습니다! ")
             return None
 
         print(f" * original path : {original_resource_dir_path}")
@@ -102,6 +110,7 @@ class Controller:
         shutil.rmtree(self.repack_dir_name)
 
         print(f" <-> Install Mode Finish")
+        return original_resource_dir_path
 
     # img 폴더를 찾아서 리턴한다.
     def find_dir_path(self, path):

@@ -40,15 +40,17 @@ class Packer:
         print(f"Start Unpack Resources")
         print(f" * output path : {self.unpack_dir_path}")
 
-        # 폴더 생성 확인
+
+        # 폴더 생성
         if not os.path.isdir(self.default_unpack_dst_path):
             os.mkdir(self.default_unpack_dst_path)
-        if not os.path.isdir(self.unpack_dir_path):
-            os.mkdir(self.unpack_dir_path)
-        if not os.path.isdir(self.sprite_resource_dir_path):
-            os.mkdir(self.sprite_resource_dir_path)
-        if not os.path.isdir(self.single_resource_dir_path):
-            os.mkdir(self.single_resource_dir_path)
+
+        # 기존 데이터 제거
+        if os.path.isdir(self.unpack_dir_path):
+            shutil.rmtree(self.unpack_dir_path)
+        os.mkdir(self.unpack_dir_path)
+        os.mkdir(self.sprite_resource_dir_path)
+        os.mkdir(self.single_resource_dir_path)
 
         root_path = resources_instance.get_resource_dir_path()  # 리소스 홈폴더
         resources = resources_instance.get_sprite_resources()
@@ -61,6 +63,8 @@ class Packer:
         non_sprite_resources = resources_instance.get_single_resources()
         for res_name in non_sprite_resources:
             shutil.copy(non_sprite_resources[res_name], os.path.join(self.single_resource_dir_path, res_name))
+
+        return os.path.abspath(self.unpack_dir_path)
 
     # 하나의 스프라이트 이미지를 조각내기
     def unpack_sprite(self, root_path, resource_name, resource_object):
@@ -141,7 +145,7 @@ class Packer:
             pack_path = dst_path
 
         if os.path.isdir(pack_path):  # 기존이 있으면 삭제
-            shutil.rmtree(pack_path)
+            shutil.rmtree(pack_path, ignore_errors=True)
 
         os.mkdir(pack_path)
         self.pack_dir_path = os.path.join(pack_path, self.root_dir_name)
@@ -154,6 +158,8 @@ class Packer:
 
         # 단일 파일 복사
         self.copy_single_resources()
+
+        return self.pack_dir_path
 
     # 단일 파일 복사
     def copy_single_resources(self):

@@ -2,6 +2,8 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import os
+import sys
 
 from Resources import Resources
 from Packer import Packer
@@ -12,6 +14,13 @@ from Controller import Controller
 import GUI
 import logging
 logging.basicConfig(level=logging.INFO)
+
+# 빌드 시 리소스 이슈 해결
+try:
+    os.chdir(sys._MEIPASS)
+    print(sys._MEIPASS)
+except:
+    os.chdir(os.getcwd())
 
 #
 # rs = Resources()

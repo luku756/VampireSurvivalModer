@@ -48,7 +48,7 @@ def create_gui():
     # window.geometry("800x710-2500+700")
     # window.resizable(False, False)
 
-    window.iconbitmap(resource_path('resource\\logo.png'))
+    window.iconbitmap(resource_path('resource\\logo.ico'))
     # window.iconphoto(False, tk.PhotoImage(file=resource_path('resource\\아멜리.jpg')))
 
     # 뱀파이어 서바이벌 타이틀

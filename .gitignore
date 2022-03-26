@@ -6,3 +6,4 @@ unpack_result/*
 mode/*
 build/*
 repack_result/*
+dist/*

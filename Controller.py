@@ -10,6 +10,9 @@ from Packer import Packer
 from Installer import Installer
 
 
+import logging
+
+
 class Controller:
     resource_dir_name = "img"  # img 만 지원
     unpack_dir_name = "unpack_result"  # 언팩 리소스가 들어가는 폴더
@@ -17,18 +20,20 @@ class Controller:
     build_dir_name = "build"  # 모드 병합 결과가 들어가는 폴더
 
     # def __init__(self):
-    #     print("controller")
+    #     logging.info("controller")
 
     # 리소스를 언팩한다.
     def unpack_resource(self, resource_path):
-        print("=" * 40)
+        logging.info("=" * 40)
         # img 찾기
         dir_path = self.find_dir_path(resource_path)
         if dir_path == "":  # 없음
-            print(" <X> img 폴더를 찾을 수 없습니다.")
+            logging.error(" <X> img 폴더를 찾을 수 없습니다.")
+            # print(" <X> img 폴더를 찾을 수 없습니다.")
             return None
         else:
-            print(f" <*> Start Unpack Resources")
+            logging.info(f" <*> Start Unpack Resources")
+            # print(f" <*> Start Unpack Resources")
 
         # 리소스 읽기
         rs = Resources()
@@ -38,41 +43,41 @@ class Controller:
         pk = Packer()
         abspath = pk.unpack(rs)  # 폴더 경로 미지정
 
-        print(f" <-> Unpack Resources Finish")
+        logging.info(f" <-> Unpack Resources Finish")
         return abspath
 
     # 리소스를 다시 패킹한다.
     def repack_resource(self, unpack_resource_path):
-        print("=" * 40)
-        print(f" <*> Start Repack Resources")
+        logging.info("=" * 40)
+        logging.info(f" <*> Start Repack Resources")
 
         # 폴더 확인
         if not os.path.isdir(os.path.join(unpack_resource_path, "single")) or \
                 os.path.isdir(os.path.join(unpack_resource_path, "sprite")):
-            print(f" <X> {unpack_resource_path} 는 unpack 폴더가 아닙니다.")
+            logging.error(f" <X> {unpack_resource_path} 는 unpack 폴더가 아닙니다.")
             return None
 
         pk = Packer()
         abspath = pk.repack(unpack_resource_path, dst_path=self.repack_dir_name)
 
-        print(f" <-> Repack Resources Finish")
+        logging.info(f" <-> Repack Resources Finish")
         return abspath
 
     # 모드를 설치한다.
     # 원본 언팩, 모드 언팩, 컴바인, 리팩
     def install_mode(self, original_resource_path, mode_path):
-        print("=" * 40)
-        print(f" <*> Start Install Mode")
+        logging.info("=" * 40)
+        logging.info(f" <*> Start Install Mode")
 
         original_resource_dir_path = self.find_dir_path(original_resource_path)
         mode_resource_dir_path = self.find_dir_path(mode_path)
 
         if original_resource_dir_path == "" or mode_resource_dir_path == "":
-            print(f" <X> {self.resource_dir_name} 폴더를 찾을 수 없습니다! ")
+            logging.error(f" <X> {self.resource_dir_name} 폴더를 찾을 수 없습니다! ")
             return None
 
-        print(f" * original path : {original_resource_dir_path}")
-        print(f" * mode path : {mode_resource_dir_path}")
+        logging.info(f" * original path : {original_resource_dir_path}")
+        logging.info(f" * mode path : {mode_resource_dir_path}")
 
         original_unpack_dir_name = "original"
         mode_unpack_dir_name = "mode"
@@ -109,7 +114,7 @@ class Controller:
         # 결과 파일 삭제
         shutil.rmtree(self.repack_dir_name)
 
-        print(f" <-> Install Mode Finish")
+        logging.info(f" <-> Install Mode Finish")
         return original_resource_dir_path
 
     # img 폴더를 찾아서 리턴한다.
@@ -121,3 +126,4 @@ class Controller:
                     find_path = os.path.join(root, dir_name)
                     return find_path
         return find_path
+

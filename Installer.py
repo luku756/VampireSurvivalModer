@@ -9,7 +9,7 @@
 import os
 import shutil
 import json
-
+import logging
 
 class Installer:
 
@@ -17,7 +17,6 @@ class Installer:
     build_path = "build"
 
     def __init__(self):
-        print()
         self.original_resource_list = []
         self.mode_resource_list = []
         self.original_path = ""
@@ -53,7 +52,7 @@ class Installer:
 
     # 원본과 모드의 비교
     def compare_mode(self):
-        print("Start Compare Original and Mode")
+        logging.info("Start Compare Original and Mode")
         self.load_resource_list()
 
         # 모드에 있는 모든 파일이 원본에 존재하는지 체크, 원본에 없는 파일은 제거.
@@ -61,9 +60,9 @@ class Installer:
             # if path not in self.original_resource_list and "illustrations.png" not in path:  # illustrations.png 는 예외 todo: 제거
             if path not in self.original_resource_list:  # illustrations.png 는 예외 todo: 제거
                 self.mode_resource_list.remove(path)
-                print(f" * {path} not in original!!!")
+                logging.warning(f" * {path} not in original!!!")
 
-        print(f" * Mode has {len(self.mode_resource_list)} resource images.")
+        logging.info(f" * Mode has {len(self.mode_resource_list)} resource images.")
 
     # 원본과 모드에 있는 리소스 목록 가져오기
     def load_resource_list(self):

@@ -11,6 +11,7 @@ from math import ceil, floor
 from PIL import Image
 import shutil
 
+import logging
 
 class Packer:
     default_unpack_dst_path = "unpack_result"
@@ -37,8 +38,8 @@ class Packer:
         self.sprite_resource_dir_path = os.path.join(self.unpack_dir_path, "sprite")
         self.single_resource_dir_path = os.path.join(self.unpack_dir_path, "single")
 
-        print(f"Start Unpack Resources")
-        print(f" * output path : {self.unpack_dir_path}")
+        logging.info(f"Start Unpack Resources")
+        logging.info(f" * output path : {self.unpack_dir_path}")
 
 
         # 폴더 생성
@@ -56,7 +57,7 @@ class Packer:
         resources = resources_instance.get_sprite_resources()
 
         for res_name in resources:
-            # print(res_name)
+            # logging.info(res_name)
             self.unpack_sprite(root_path, res_name, resources[res_name])
 
         # sprite 가 아닌 리소스를 복사
@@ -81,7 +82,7 @@ class Packer:
 
         # 이미지 크기 오류 체크
         if img.size[0] != resource_object.w or img.size[1] != resource_object.h:
-            print(f" * {sprite_path} is error!!!  json size: ({resource_object.w} / {resource_object.h}), real size : {img.size}")
+            logging.warning(f" * {sprite_path} is error!!!  json size: ({resource_object.w} / {resource_object.h}), real size : {img.size}")
 
         img_list = resource_object.get_image_list()
 
@@ -99,10 +100,7 @@ class Packer:
                 trimmed_list[frame.filename] = json_obj
                 # crop_img = self.restore_trimmed_image(crop_img, frame.src_w, frame.src_h)  # 이미지 복구
 
-            try:
-                crop_img.save(img_path)  # 잘라낸 이미지를 저장. 이전 파일이 있다면 덮어쓰기됨
-            except KeyError as e:
-                print(e)
+            crop_img.save(img_path)  # 잘라낸 이미지를 저장. 이전 파일이 있다면 덮어쓰기됨
 
         # trimmed_list 저장
         with open(os.path.join(unpack_img_dir_path, self.trimmed_json_name), "w") as f:
@@ -134,8 +132,8 @@ class Packer:
 
     # unpack 된 리소스를 다시 packing
     def repack(self, unpacked_path, dst_path=""):
-        print(f"Start Packing Resources")
-        print(f" * input path : {unpacked_path}")
+        logging.info(f"Start Packing Resources")
+        logging.info(f" * input path : {unpacked_path}")
         self.pack_src_dir_path = unpacked_path
 
         # 폴더 경로
@@ -151,7 +149,7 @@ class Packer:
         self.pack_dir_path = os.path.join(pack_path, self.root_dir_name)
         os.mkdir(self.pack_dir_path)
 
-        print(f" * output path : {self.pack_dir_path}")
+        logging.info(f" * output path : {self.pack_dir_path}")
 
         # 스프라이트 리소스 packing
         self.pack_sprite_resources()
@@ -181,7 +179,7 @@ class Packer:
         sprite_list = os.listdir(sprite_dir_src_path)
 
         for sprite in sprite_list:
-            print(f" > pack sprite - {sprite}")
+            logging.info(f" > pack sprite - {sprite}")
             sprite_dir_path = os.path.join(sprite_dir_src_path, sprite)
 
             # json 파일. 뼈대를 json_skeleton.json 파일에서 가져온다.

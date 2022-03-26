@@ -10,7 +10,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Vampire Survivors\sprite_resources
 import os
 import json
 from math import floor
-
+import logging
 
 class Resources:
     img_resource_dir_path = "resources\\app\\.webpack\\renderer\\assets\\img"
@@ -22,9 +22,9 @@ class Resources:
 
     # 리소스 읽기
     def read(self, resource_path=""):
-        print('Start Read Resource')
+        logging.info('Start Read Resource')
         if resource_path != "":
-            print(f" * input path : {resource_path}")
+            logging.info(f" * input path : {resource_path}")
             self.img_resource_dir_path = resource_path
         self.read_and_parse_resource()
 
@@ -40,10 +40,10 @@ class Resources:
             ext = os.path.splitext(path)  # 파일 확장자
             if ext[1] != '.json' and ext[0] not in self.sprite_name_list:
                 # 스프라이트가 아닌, 코드나 단일 png 등의 리소스
-                # print(f"{path} is single resources")
+                # logging.info(f"{path} is single resources")
                 self.single_resources[path] = os.path.join(self.img_resource_dir_path, path)
 
-        # print(self.sprite_name_list)
+        # logging.info(self.sprite_name_list)
 
         for res in self.sprite_name_list:
             self.parse_resource(res)
@@ -80,8 +80,8 @@ class ResourceObject:
     def __init__(self, title, json_object):
         self.title = title
         self.image_list = []
-        # print(title)
-        # print(json_object)
+        # logging.info(title)
+        # logging.info(json_object)
 
         textures = json_object["textures"][0]  # 0번만 사용됨
         self.filename = textures["image"]
@@ -94,7 +94,7 @@ class ResourceObject:
 
         # 메타 정보
         # self.meta = json_object["meta"]
-        # print(self.meta)
+        # logging.info(self.meta)
 
         # 각 프레임(개별 이미지) 읽어들이기
         self.parse_images(textures["frames"])
@@ -103,9 +103,9 @@ class ResourceObject:
         self.json_skeleton = json_object
         self.json_skeleton["textures"][0]["frames"] = []
 
-        # print(title)
-        # print(json_object)
-        # print(self.json_skeleton)
+        # logging.info(title)
+        # logging.info(json_object)
+        # logging.info(self.json_skeleton)
 
 
     # 각 이미지 정보를 수집하여 저장
@@ -126,7 +126,7 @@ class ResourceImage:
 
     def __init__(self, json_obj):
         self.filename = json_obj["filename"]
-        # print(self.filename)
+        # logging.info(self.filename)
 
         # psd 타입으로 저장 불가. png 로 변환
         ext = os.path.splitext(self.filename)  # 파일 확장자
@@ -144,10 +144,10 @@ class ResourceImage:
         self.sprite_y = json_obj["spriteSourceSize"]["y"]
 
         if json_obj["spriteSourceSize"]["w"] != json_obj["frame"]["w"] or  json_obj["spriteSourceSize"]["h"] != json_obj["frame"]["h"]:
-            print("이건 아닌데 ㅠ")
+            logging.error("이건 아닌데 ㅠ")
 
         # if  json_obj["spriteSourceSize"]["w"] != json_obj["sourceSize"]["w"] or  json_obj["spriteSourceSize"]["h"] != json_obj["sourceSize"]["h"]:
-        #     print(f'{self.filename} 는 다르다. src : ({json_obj["sourceSize"]["w"]} / {json_obj["sourceSize"]["h"]})  spriteSrc : ({json_obj["spriteSourceSize"]["w"]} / {json_obj["spriteSourceSize"]["h"]})')
+        #     logging.info(f'{self.filename} 는 다르다. src : ({json_obj["sourceSize"]["w"]} / {json_obj["sourceSize"]["h"]})  spriteSrc : ({json_obj["spriteSourceSize"]["w"]} / {json_obj["spriteSourceSize"]["h"]})')
         #
         #     w_diff = json_obj["sourceSize"]["w"] - json_obj["spriteSourceSize"]["w"]
         #     h_diff = json_obj["sourceSize"]["h"] - json_obj["spriteSourceSize"]["h"]
@@ -157,20 +157,20 @@ class ResourceImage:
         #
         #     if w_gap == json_obj["spriteSourceSize"]["x"]  and \
         #             h_gap == json_obj["spriteSourceSize"]["y"] :
-        #         print("하지만 이렇게 하면 같지.")
+        #         logging.info("하지만 이렇게 하면 같지.")
         #     else:
-        #         print("예외가... 있구나?")
-        #         print(json_obj["frame"])
-        #         print(json_obj["sourceSize"])
-        #         print(json_obj["spriteSourceSize"])
+        #         logging.info("예외가... 있구나?")
+        #         logging.info(json_obj["frame"])
+        #         logging.info(json_obj["sourceSize"])
+        #         logging.info(json_obj["spriteSourceSize"])
 
         if self.w != json_obj["sourceSize"]["w"] or self.h != json_obj["sourceSize"]["h"]:
             if self.trimmed:  # trimmed 된 경우, 원본의 크기와 frame 상의 크기가 달라질 수 있음.
                 self.src_w = json_obj["sourceSize"]["w"]
                 self.src_h = json_obj["sourceSize"]["h"]
-                # print(f"trim, now: ({self.w}, {self.h}) / origin: ({self.src_w}, {self.src_h}) ({self.filename})")
+                # logging.info(f"trim, now: ({self.w}, {self.h}) / origin: ({self.src_w}, {self.src_h}) ({self.filename})")
             else:
-                print("this is bug... " + self.filename)
+                logging.error("this is bug... " + self.filename)
         else:
             self.src_w = self.w
             self.src_h = self.h

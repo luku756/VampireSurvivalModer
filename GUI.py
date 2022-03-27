@@ -179,7 +179,7 @@ def create_gui():
                 err_msg = f"Wrong Path!\nPlease select Vampire Survival Resource Path!\nex) install_result\\img"
                 messagebox.showerror(title="Error!", message=err_msg)
             else:
-                messagebox.showinfo(title="Result", message=f"Unpack Success!\noutput : {abspath}")
+                messagebox.showinfo(title="Result", message=f"Install Success!\noutput : {abspath}")
 
     install_button = tkinter.Button(button_frame, overrelief="groove", fg='black', font=default_font,
                                     text='Install Mode', command=install)

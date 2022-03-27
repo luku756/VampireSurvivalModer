@@ -10,11 +10,12 @@ import os
 import shutil
 import json
 import logging
+from PIL import Image, ImageChops
 
 class Installer:
 
     # mode 가 설치된 결과물 폴더
-    build_path = "build"
+    build_path = "merge"
 
     def __init__(self):
         self.original_resource_list = []
@@ -55,12 +56,17 @@ class Installer:
         logging.info("\nStart Compare Original and Mode")
         self.load_resource_list()
 
+        remove_list = []
+
         # 모드에 있는 모든 파일이 원본에 존재하는지 체크, 원본에 없는 파일은 제거.
         for path in self.mode_resource_list:
             # if path not in self.original_resource_list and "illustrations.png" not in path:  # illustrations.png 는 예외 todo: 제거
             if path not in self.original_resource_list:  # illustrations.png 는 예외 todo: 제거
-                self.mode_resource_list.remove(path)
+                remove_list.append(path)
                 logging.warning(f" * {path} not in original!!!")
+
+        for path in remove_list:
+            self.mode_resource_list.remove(path)
 
         logging.info(f" * Mode has {len(self.mode_resource_list)} resource images.")
 
@@ -99,3 +105,86 @@ class Installer:
         # trimmed_list 저장
         with open(os.path.join(build_path, path), "w") as f:
             f.write(json.dumps(trimmed_json))
+
+    # 각 json 이 업데이트된 파일인지 아닌지 확인.
+    # 생각해보면 원본과 모드의 크기가 동일하면 적용 안되겠네. 제대로 하려면 unpack 상태에서 (merge와 original unpack) 이미지를 다 비교해야 한다. ...무겁겠네...
+    def check_sprite_update(self, new_resource_path, original_resource_path):
+
+        new_resource_json_list = {}
+        original_resource_json_list = {}
+
+        # 모드와 합쳐진 리소스
+        file_list = os.listdir(new_resource_path)
+        for path in file_list:
+            ext = os.path.splitext(path)  # 파일 확장자
+            if ext[1] == '.json':
+                json_path = os.path.join(new_resource_path, path)
+                with open(json_path, "r") as f:
+                    json_str = f.read()
+                    json_object = json.loads(json_str)
+                    new_resource_json_list[ext[0]] = json_object
+                    # new_resource_json_list.append(json_object)
+
+        # 원본 리소스
+        file_list = os.listdir(original_resource_path)
+        for path in file_list:
+            ext = os.path.splitext(path)  # 파일 확장자
+            if ext[1] == '.json':
+                json_path = os.path.join(original_resource_path, path)
+                with open(json_path, "r") as f:
+                    json_str = f.read()
+                    json_object = json.loads(json_str)
+                    original_resource_json_list[ext[0]] = json_object
+                    # new_resource_json_list.append(json_object)
+
+        for json_name in new_resource_json_list:
+            update_flag = self.compare_json_frames(new_resource_json_list[json_name], original_resource_json_list[json_name])
+
+
+    # 두 json 의 frame 들이 동일한지 확인. (frame 의 x,y는 무시)
+    def compare_json_frames(self, target_1, target_2):
+        frames_1 = target_1["textures"][0]["frames"]
+        frames_2 = target_2["textures"][0]["frames"]
+
+        # 파일명 순서로 정렬
+        # frames_1.sort(key=lambda x: x['filename'])
+        # frames_2.sort(key=lambda x: x['filename'])
+
+        frame1_dict = {}
+        frame2_dict = {}
+
+        for frame_name in frames_1:
+            frame1_dict[os.path.splitext(frame_name['filename'])[0]] = frame_name
+        for frame_name in frames_2:
+            frame2_dict[os.path.splitext(frame_name['filename'])[0]] = frame_name
+
+        # print(f"compare {target_1['textures'][0]['image']}")
+        # print(f" resource size : {len(frame1_dict)}, {len(frame2_dict)}")
+        if len(frame1_dict) != len(frame2_dict):
+            print("왜 다르지?")
+
+        update_flag = False
+
+        for i, frame_name in enumerate(frame1_dict):
+            if frame_name not in frame2_dict:
+                print(f"{frame_name}가 원본에 없음!!!.")
+            else:
+                # print(f"{i} : {frame_name}, {frame2_dict[frame_name]['filename']}")
+                f1, f2 = frame1_dict[frame_name], frame2_dict[frame_name]
+                if f1["trimmed"] != f2["trimmed"] or f1["sourceSize"] != f2["sourceSize"] or \
+                        f1["spriteSourceSize"] != f2["spriteSourceSize"] or \
+                        f1["frame"]['w'] != f2["frame"]['w'] or f1["frame"]['h'] != f2["frame"]['h']:
+                    update_flag = True
+                    break
+                    # print(f"변동 사항 확인. {frame_name} is updated resource.")
+                    # print(f1)
+                    # print(f2)
+
+        if update_flag:
+            print(f"{target_1['textures'][0]['image']} 는 업데이트 된 리소스입니다.")
+        else:
+            print(f"{target_1['textures'][0]['image']} 는 모드로 인해 업데이트되지 않았습니다. 원본 사용.")
+
+
+
+        return update_flag

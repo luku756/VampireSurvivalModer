@@ -17,7 +17,7 @@ class Controller:
     resource_dir_name = "img"  # img 만 지원
     unpack_dir_name = "unpack_result"  # 언팩 리소스가 들어가는 폴더
     repack_dir_name = "repack_result"
-    build_dir_name = "build"  # 모드 병합 결과가 들어가는 폴더
+    build_dir_name = "merge"  # 모드 병합 결과가 들어가는 폴더
 
     # def __init__(self):
     #     logging.info("controller")
@@ -105,6 +105,8 @@ class Controller:
         # 중간 파일 정리 (원본 언팩, 모드 언팩, 모드 병합)
         shutil.rmtree(self.unpack_dir_name)
         shutil.rmtree(self.build_dir_name)
+
+        installer.check_sprite_update(self.repack_dir_name, self.resource_dir_name)
 
         # 결과 파일로 원본 덮어쓰기 (설치 완료)
         output_dir_path = os.path.join(self.repack_dir_name, self.resource_dir_name)

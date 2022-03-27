@@ -11,7 +11,7 @@ This support install another version mode. (It can apply v0.3 to v0.2 mode resou
 
 ## Download
 
-[Download Exe File](https://github.com/luku756/VampireSurvivalModer/releases/tag/v1.0.0)
+[Download Exe File](https://github.com/luku756/VampireSurvivalModer/releases/latest)
 
 ## Main Function (주요 기능)
 

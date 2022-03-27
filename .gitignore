@@ -1,5 +1,6 @@
 설계.txt
 resources/*
+resources2/*
 data/*
 unpack_result/*
 .idea/*
@@ -7,3 +8,4 @@ mode/*
 build/*
 repack_result/*
 dist/*
+merge/*

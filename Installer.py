@@ -106,85 +106,70 @@ class Installer:
         with open(os.path.join(build_path, path), "w") as f:
             f.write(json.dumps(trimmed_json))
 
-    # 각 json 이 업데이트된 파일인지 아닌지 확인.
-    # 생각해보면 원본과 모드의 크기가 동일하면 적용 안되겠네. 제대로 하려면 unpack 상태에서 (merge와 original unpack) 이미지를 다 비교해야 한다. ...무겁겠네...
-    def check_sprite_update(self, new_resource_path, original_resource_path):
+    # unpack 상태의 이미지를 비교하여 모드로 인한 업데이트 여부 확인
+    # 업데이트 되지 않은 스프라이트 목록 리턴
+    def check_sprite_update_image_compare(self, merge_resource_dir_path, original_unpack_resource_dir_path):
 
-        new_resource_json_list = {}
-        original_resource_json_list = {}
+        logging.info(f"Start Check Update Sprite.")
 
-        # 모드와 합쳐진 리소스
-        file_list = os.listdir(new_resource_path)
-        for path in file_list:
-            ext = os.path.splitext(path)  # 파일 확장자
-            if ext[1] == '.json':
-                json_path = os.path.join(new_resource_path, path)
-                with open(json_path, "r") as f:
-                    json_str = f.read()
-                    json_object = json.loads(json_str)
-                    new_resource_json_list[ext[0]] = json_object
-                    # new_resource_json_list.append(json_object)
+        non_update_list = []
 
-        # 원본 리소스
-        file_list = os.listdir(original_resource_path)
-        for path in file_list:
-            ext = os.path.splitext(path)  # 파일 확장자
-            if ext[1] == '.json':
-                json_path = os.path.join(original_resource_path, path)
-                with open(json_path, "r") as f:
-                    json_str = f.read()
-                    json_object = json.loads(json_str)
-                    original_resource_json_list[ext[0]] = json_object
-                    # new_resource_json_list.append(json_object)
+        merge_sprite_path = os.path.join(merge_resource_dir_path, "sprite")
+        original_sprite_path = os.path.join(original_unpack_resource_dir_path, "sprite")
+        # 스프라이트 목록
+        sprite_list = os.listdir(merge_sprite_path)
+        for sprite_name in sprite_list:
+            merge_path = os.path.join(merge_sprite_path, sprite_name)
+            original_path = os.path.join(original_sprite_path, sprite_name)
 
-        for json_name in new_resource_json_list:
-            update_flag = self.compare_json_frames(new_resource_json_list[json_name], original_resource_json_list[json_name])
+            logging.info(f" * check sprite {sprite_name}")
+            update_flag = self.compare_sprite_images(merge_path, original_path)
 
+            if update_flag:
+                logging.info(f"   > {sprite_name} is updated by mode.")
+            else:
+                non_update_list.append(sprite_name)
+        print(non_update_list)
+        return non_update_list
 
-    # 두 json 의 frame 들이 동일한지 확인. (frame 의 x,y는 무시)
-    def compare_json_frames(self, target_1, target_2):
-        frames_1 = target_1["textures"][0]["frames"]
-        frames_2 = target_2["textures"][0]["frames"]
-
-        # 파일명 순서로 정렬
-        # frames_1.sort(key=lambda x: x['filename'])
-        # frames_2.sort(key=lambda x: x['filename'])
-
-        frame1_dict = {}
-        frame2_dict = {}
-
-        for frame_name in frames_1:
-            frame1_dict[os.path.splitext(frame_name['filename'])[0]] = frame_name
-        for frame_name in frames_2:
-            frame2_dict[os.path.splitext(frame_name['filename'])[0]] = frame_name
-
-        # print(f"compare {target_1['textures'][0]['image']}")
-        # print(f" resource size : {len(frame1_dict)}, {len(frame2_dict)}")
-        if len(frame1_dict) != len(frame2_dict):
-            print("왜 다르지?")
+    # 각 이미지를 비교하여 스프라이트의 업데이트 여부 확인
+    def compare_sprite_images(self, merge_path, original_path):
 
         update_flag = False
 
-        for i, frame_name in enumerate(frame1_dict):
-            if frame_name not in frame2_dict:
-                print(f"{frame_name}가 원본에 없음!!!.")
+        # key : filename, value : 이미지 경로
+        merge_resource_list = {}
+        original_resource_list = {}
+
+        # 모드와 합쳐진 리소스
+        file_list = os.listdir(merge_path)
+        for path in file_list:
+            ext = os.path.splitext(path)  # 파일 확장자
+            if ext[1] == '.png':
+                img_path = os.path.join(merge_path, path)
+                merge_resource_list[path] = img_path
+
+        # 원본 리소스
+        file_list = os.listdir(original_path)
+        for path in file_list:
+            ext = os.path.splitext(path)  # 파일 확장자
+            if ext[1] == '.png':
+                img_path = os.path.join(original_path, path)
+                original_resource_list[path] = img_path
+
+        # 리소스 비교
+        for img_name in merge_resource_list:
+            if img_name not in original_resource_list:
+                logging.warning(f"{img_name} 가 merge 에는 있는데 original 에 없다?!")
             else:
-                # print(f"{i} : {frame_name}, {frame2_dict[frame_name]['filename']}")
-                f1, f2 = frame1_dict[frame_name], frame2_dict[frame_name]
-                if f1["trimmed"] != f2["trimmed"] or f1["sourceSize"] != f2["sourceSize"] or \
-                        f1["spriteSourceSize"] != f2["spriteSourceSize"] or \
-                        f1["frame"]['w'] != f2["frame"]['w'] or f1["frame"]['h'] != f2["frame"]['h']:
+                # 알파를 비교하지 못함.
+                new_image = Image.open(merge_resource_list[img_name]).convert('RGBA')
+                original_image = Image.open(original_resource_list[img_name]).convert('RGBA')
+
+                diff = ImageChops.difference(new_image, original_image)
+
+                if diff.getbbox():
                     update_flag = True
-                    break
-                    # print(f"변동 사항 확인. {frame_name} is updated resource.")
-                    # print(f1)
-                    # print(f2)
-
-        if update_flag:
-            print(f"{target_1['textures'][0]['image']} 는 업데이트 된 리소스입니다.")
-        else:
-            print(f"{target_1['textures'][0]['image']} 는 모드로 인해 업데이트되지 않았습니다. 원본 사용.")
-
-
+                    return update_flag
 
         return update_flag

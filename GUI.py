@@ -14,6 +14,9 @@ import logging
 from tkinter import END, N, S, E, W, Scrollbar, Text
 
 
+# 버전
+version = "v 1.0.0"
+
 # 윈도우 창 생성
 # 필요한 버튼 : 초기화, 수정 내용 저장, 파일 다시 읽기(전체 읽기)
 # 컴파일 시 리소스 가져오기
@@ -43,7 +46,7 @@ def create_gui():
     window.after(1, lambda: window.focus_force())
     window.attributes('-topmost', 0)
 
-    window.title("Vampire Survival Moder by Redwing (v 1.0.0)")
+    window.title(f"Vampire Survival Moder by Redwing ({version})")
     window.geometry("1100x800+500+100")
     # window.geometry("800x710-2500+700")
     # window.resizable(False, False)

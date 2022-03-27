@@ -179,7 +179,7 @@ class Packer:
         sprite_list = os.listdir(sprite_dir_src_path)
 
         for sprite in sprite_list:
-            logging.info(f" > pack sprite - {sprite}")
+            logging.info(f"   > pack sprite - {sprite}")
             sprite_dir_path = os.path.join(sprite_dir_src_path, sprite)
 
             # json 파일. 뼈대를 json_skeleton.json 파일에서 가져온다.

@@ -47,7 +47,7 @@ Just support edit image resources.
 
 ### Modes
 
-사용할 수 있는 권장 모드입니다.
+사용할 수 있는 권장 모드입니다. (Recommended Modes)
 
 [Hololive Mode by MayoNeyo](https://docs.google.com/document/d/1tmT_06un02KOF-wGcxGfK72eFumWvASxRbfkjXwE9a4/edit)
 

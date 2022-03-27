@@ -64,7 +64,7 @@ class Controller:
         return abspath
 
     # 모드를 설치한다.
-    # 원본 언팩, 모드 언팩, 컴바인, 리팩
+    # 원본 언팩, 모드 언팩, 컴바인, 리팩, 업데이트 비교, 비 업데이트 사항 롤백
     def install_mode(self, original_resource_path, mode_path):
         logging.info("=" * 40)
         logging.info(f" <*> Start Install Mode")
@@ -88,10 +88,16 @@ class Controller:
         rs1.read(original_resource_dir_path)
         pk.unpack(rs1, dst_path=original_unpack_dir_name)
 
+        # 일러스트 하드코딩
+        if os.path.isfile(os.path.join(mode_resource_dir_path, "illustrations.png")) and \
+            not os.path.isfile(os.path.join(mode_resource_dir_path, "illustrations.json")):
+            shutil.copy(os.path.join(original_resource_dir_path, "illustrations.json"), os.path.join(mode_resource_dir_path, "illustrations.json"))
+
         # 모드 리소스 읽고 언팩
         rs2 = Resources()
         rs2.read(mode_resource_dir_path)
         pk.unpack(rs2, dst_path=mode_unpack_dir_name)
+
 
         # 모드 파일 비교 및 적용
         installer = Installer()
@@ -106,7 +112,7 @@ class Controller:
         shutil.rmtree(self.unpack_dir_name)
         shutil.rmtree(self.build_dir_name)
 
-        installer.check_sprite_update(self.repack_dir_name, self.resource_dir_name)
+        # installer.check_sprite_update(self.repack_dir_name, self.resource_dir_name)
 
         # 결과 파일로 원본 덮어쓰기 (설치 완료)
         output_dir_path = os.path.join(self.repack_dir_name, self.resource_dir_name)

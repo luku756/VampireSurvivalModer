@@ -12,6 +12,7 @@ import json
 from math import floor
 import logging
 
+
 class Resources:
     img_resource_dir_path = "resources\\app\\.webpack\\renderer\\assets\\img"
 
@@ -70,13 +71,12 @@ class Resources:
         return self.img_resource_dir_path
 
 
-
 # json 형태로 된 리소스의 정보와 목록
 class ResourceObject:
     title = ""
     json_skeleton = {}  # frame을 제외한 json 정보
     image_list = []  # 이미지 목록. ResourceImage 배열
-    
+
     def __init__(self, title, json_object):
         self.title = title
         self.image_list = []
@@ -85,7 +85,6 @@ class ResourceObject:
 
         textures = json_object["textures"][0]  # 0번만 사용됨
         self.filename = textures["image"]
-
 
         self.format = textures["format"]
         self.w = textures["size"]["w"]
@@ -106,7 +105,6 @@ class ResourceObject:
         # logging.info(title)
         # logging.info(json_object)
         # logging.info(self.json_skeleton)
-
 
     # 각 이미지 정보를 수집하여 저장
     def parse_images(self, json_list):
@@ -143,7 +141,8 @@ class ResourceImage:
         self.sprite_x = json_obj["spriteSourceSize"]["x"]
         self.sprite_y = json_obj["spriteSourceSize"]["y"]
 
-        if json_obj["spriteSourceSize"]["w"] != json_obj["frame"]["w"] or  json_obj["spriteSourceSize"]["h"] != json_obj["frame"]["h"]:
+        if json_obj["spriteSourceSize"]["w"] != json_obj["frame"]["w"] or json_obj["spriteSourceSize"]["h"] != \
+                json_obj["frame"]["h"]:
             logging.error("이건 아닌데 ㅠ")
 
         # if  json_obj["spriteSourceSize"]["w"] != json_obj["sourceSize"]["w"] or  json_obj["spriteSourceSize"]["h"] != json_obj["sourceSize"]["h"]:
@@ -178,5 +177,3 @@ class ResourceImage:
     # 스프라이트 이미지상에서의 영역. (x, y, x + w, y + h)
     def get_area(self):
         return self.x, self.y, self.x + self.w, self.y + self.h
-
-    

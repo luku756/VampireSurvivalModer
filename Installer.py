@@ -51,6 +51,10 @@ class Installer:
                 src_path = self.mode_path + path
                 shutil.copy(src_path, build_path + path)
 
+        # 업데이트 여부 확인
+        # non_update_list = self.check_sprite_update_image_compare(build_path, original_path)
+        # 업데이트 되지 않은 파일은 원본의 것으로 복구
+
     # 원본과 모드의 비교
     def compare_mode(self):
         logging.info("\nStart Compare Original and Mode")
@@ -110,7 +114,7 @@ class Installer:
     # 업데이트 되지 않은 스프라이트 목록 리턴
     def check_sprite_update_image_compare(self, merge_resource_dir_path, original_unpack_resource_dir_path):
 
-        logging.info(f"Start Check Update Sprite.")
+        logging.info(f"\nStart Check Update Sprite.")
 
         non_update_list = []
 
@@ -132,6 +136,7 @@ class Installer:
         print(non_update_list)
         return non_update_list
 
+    # noinspection PyMethodMayBeStatic
     # 각 이미지를 비교하여 스프라이트의 업데이트 여부 확인
     def compare_sprite_images(self, merge_path, original_path):
 
@@ -173,3 +178,9 @@ class Installer:
                     return update_flag
 
         return update_flag
+
+    # repack 후 업데이트 되지 않은 스프라이트를 확인하고 원본의 png 와 json 을 사용한다.
+    def rollback_non_update_sprites(self, repack_path, original_unpack_path, merge_path):
+        non_update_list = self.check_sprite_update_image_compare(merge_path, original_unpack_path)
+
+

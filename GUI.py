@@ -15,7 +15,7 @@ from tkinter import END, N, S, E, W, Scrollbar, Text
 
 
 # 버전
-version = "v 1.0.0"
+version = "v 1.1.0"
 
 # 윈도우 창 생성
 # 필요한 버튼 : 초기화, 수정 내용 저장, 파일 다시 읽기(전체 읽기)

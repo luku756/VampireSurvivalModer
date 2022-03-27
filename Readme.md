@@ -55,3 +55,8 @@ Just support edit image resources.
 ```buildoutcfg
 python build.py
 ```
+
+## Patch Note
+
+### 1.1.0
+Edit bug (remove unused resources)

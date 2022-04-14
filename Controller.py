@@ -53,7 +53,7 @@ class Controller:
 
         # 폴더 확인
         if not os.path.isdir(os.path.join(unpack_resource_path, "single")) or \
-                os.path.isdir(os.path.join(unpack_resource_path, "sprite")):
+                not os.path.isdir(os.path.join(unpack_resource_path, "sprite")):
             logging.error(f" <X> {unpack_resource_path} 는 unpack 폴더가 아닙니다.")
             return None
 

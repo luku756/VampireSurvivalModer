@@ -60,3 +60,6 @@ python build.py
 
 ### 1.1.0
 Edit bug (remove unused resources)
+
+### 1.2.0
+Edit bug (repack bug edit)
